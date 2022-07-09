@@ -1,14 +1,16 @@
+from unicodedata import category, name
 from django.db import models
 from simple_history.models import HistoricalRecords
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+
 
 def validate_lvl(value):
     if value <= 0:
         raise ValidationError(
             _('%(value)s Уровень не должен быть отрицательным'),
             params={'value': value},
-)   
+        )
 
 
 class Partners(models.Model):
@@ -25,15 +27,17 @@ class Partners(models.Model):
     class Meta:
         verbose_name = 'Ресторан'
         verbose_name_plural = 'Рестораны'
-        
+
+
 class Client(models.Model):
     name = models.CharField(verbose_name='Имя', max_length=25)
     address = models.CharField(verbose_name='Адрес', max_length=250)
     amount = models.IntegerField(verbose_name='Количество заказов')
     money_spend = models.FloatField(verbose_name='Денег потрачено')
-    favorite_partner = models.ManyToManyField(Partners,verbose_name='Любимый ресторан')
-    level = models.IntegerField(verbose_name='Уровень клиента', validators=[validate_lvl])
-    
+    favorite_partner = models.ManyToManyField(
+        Partners, verbose_name='Любимый ресторан')
+    level = models.IntegerField(
+        verbose_name='Уровень клиента', validators=[validate_lvl])
 
     history = HistoricalRecords()
 
@@ -46,8 +50,8 @@ class Client(models.Model):
 
 
 class Order(models.Model):
-    client = models.ManyToManyField(Client,verbose_name='Заказчик')
-    partner = models.ManyToManyField(Partners,verbose_name='Ресторан')
+    client = models.ManyToManyField(Client, verbose_name='Заказчик')
+    partner = models.ManyToManyField(Partners, verbose_name='Ресторан')
     food = models.TextField(verbose_name='Меню заказа')
     price = models.FloatField(verbose_name='Чек')
 
@@ -59,3 +63,19 @@ class Order(models.Model):
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
+
+
+class Product(models.Model):
+    name = models.CharField(verbose_name='Имя блюда', max_length=25)
+    category = models.CharField(verbose_name='Категория', max_length=25)
+    price = models.FloatField(verbose_name='Стоимость')
+    food = models.TextField(verbose_name='Состав')
+    partner = models.ManyToManyField(Partners, verbose_name='Ресторан')
+    history = HistoricalRecords()
+
+    # def __str__(self):
+    #     return self.price
+
+    class Meta:
+        verbose_name = 'Блюдо'
+        verbose_name_plural = 'Блюда'
